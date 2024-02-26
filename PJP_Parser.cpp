@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <string>
 #include <stack>
 #include <cctype>
@@ -19,7 +19,7 @@ bool tryParse(const string& str, int& result) {// return if string is valid inte
         return false;
     }
 }
-void Multiply(stack<int>* st, char* op) {
+bool Multiply(stack<int>* st, char* op) {
     int a, b;
     b = st->top();
     st->pop();
@@ -27,9 +27,12 @@ void Multiply(stack<int>* st, char* op) {
     st->pop();
     if (*op == '*')
         st->push(a * b);
-    else if (*op == '/')
+    else if (*op == '/' && b != 0)
         st->push(a / b);
+    else
+        return false;
     *op = ' ';
+    return true;
 }
 bool calculate(string sub, int* result) {
     stack<int> operandStack;
@@ -50,8 +53,8 @@ bool calculate(string sub, int* result) {
             }
         }
         else if (isDigit) {// operator // isDigit  digit must be in front of each operator
-            if (multiply != ' ') // operand before was product or divide
-                Multiply(&operandStack, &multiply);
+            if (multiply != ' ' && !Multiply(&operandStack, &multiply))
+                return false;
 
             isDigit = false;// flag
             isNegative = 1;//flag
@@ -63,8 +66,8 @@ bool calculate(string sub, int* result) {
         else // ** ++
             return false;
     }
-    if (multiply != ' ')
-        Multiply(&operandStack, &multiply);
+    if (multiply != ' ' && !Multiply(&operandStack, &multiply))
+        return false;
 
     *result = 0;
     while(!operandStack.empty())
@@ -127,10 +130,11 @@ int main() {
 
     cout << "Enter number of expression: " << endl;
     cin >> expCount;
-    for (int j = 0; j < expCount; j++)
+    cin.ignore();
+    for (int j = 0; j < 2; j++)
     {
         cout << "Enter expression: " << endl;
-        cin >> text;
+        getline(cin,text);
         expression(text);
     }
 }
